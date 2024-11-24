@@ -9,6 +9,83 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+enum Papel {
+  CLIENTE
+  FUNCIONARIO
+}
+
+model Usuario {
+  id          String      @id @default(cuid())
+  nome        String
+  email       String       @unique
+  senha       String
+  papel       Papel        @default(CLIENTE)
+  criadoEm    DateTime     @default(now())
+  atualizadoEm DateTime    @updatedAt
+
+  produtosCadastrados Produto[]
+  pedidos     Pedido[]
+  @@map("usuarios")
+}
+
+enum CategoriaProduto {
+  FORMAL
+  CASUAL
+  CASAMENTO
+}
+
+model Produto {
+  id            String              @id @default(cuid())
+  nome          String
+  descricao     String
+  preco         Float
+  estoque       Int
+  categoria     CategoriaProduto    @default(FORMAL)
+  criadoEm      DateTime            @default(now())
+  atualizadoEm  DateTime            @updatedAt
+
+  criadoPorId   String
+  criadoPor     Usuario             @relation(fields: [criadoPorId], references: [id])
+
+  itensPedido   ItemPedido[]
+  @@map("produtos")
+}
+
+enum StatusPedido {
+  PENDENTE
+  PAGO
+  ENVIADO
+  CANCELADO
+}
+
+model Pedido {
+  id            String         @id @default(cuid())
+  usuarioId     String
+  usuario       Usuario        @relation(fields: [usuarioId], references: [id])
+  total         Float
+  status        StatusPedido   @default(PENDENTE)
+  criadoEm      DateTime       @default(now())
+  atualizadoEm  DateTime       @updatedAt
+
+  itens         ItemPedido[]
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id            String      @id @default(cuid())
+  pedidoId      String
+  pedido        Pedido      @relation(fields: [pedidoId], references: [id])
+
+  produtoId     String
+  produto       Produto     @relation(fields: [produtoId], references: [id])
+
+  quantidade    Int
+  preco         Float
+  criadoEm      DateTime    @default(now())
+
+  @@map("itens_pedido")
 }
