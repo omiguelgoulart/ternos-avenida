@@ -19,13 +19,13 @@ enum Papel {
 }
 
 model Usuario {
-  id          String      @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   nome        String
   email       String       @unique
   senha       String
   papel       Papel        @default(CLIENTE)
   criadoEm    DateTime     @default(now())
-  atualizadoEm DateTime    @updatedAt
+  atualizadoEm DateTime    @default(now())
 
   produtosCadastrados Produto[]
   pedidos     Pedido[]
@@ -34,12 +34,12 @@ model Usuario {
 }
 
 model Log {
-  id           Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   descricao    String   @db.VarChar(60)
   complemento  String   @db.VarChar(255)
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  usuarioId    String
+  updatedAt    DateTime @default(now())
+  usuarioId    Int
   usuario      Usuario  @relation(fields: [usuarioId], references: [id])
   @@map("logs")
 }
@@ -51,16 +51,16 @@ enum CategoriaProduto {
 }
 
 model Produto {
-  id            String              @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   nome          String
   descricao     String
   preco         Float
   estoque       Int
   categoria     CategoriaProduto    @default(FORMAL)
   criadoEm      DateTime            @default(now())
-  atualizadoEm  DateTime            @updatedAt
+  atualizadoEm  DateTime            @default(now())
 
-  criadoPorId   String
+  criadoPorId   Int
   criadoPor     Usuario             @relation(fields: [criadoPorId], references: [id])
 
   itensPedido   ItemPedido[]
@@ -75,24 +75,24 @@ enum StatusPedido {
 }
 
 model Pedido {
-  id            String         @id @default(cuid())
-  usuarioId     String
+  id          Int          @id @default(autoincrement())
+  usuarioId     Int
   usuario       Usuario        @relation(fields: [usuarioId], references: [id])
   total         Float
   status        StatusPedido   @default(PENDENTE)
   criadoEm      DateTime       @default(now())
-  atualizadoEm  DateTime       @updatedAt
+  atualizadoEm  DateTime       @default(now())
 
   itens         ItemPedido[]
   @@map("pedidos")
 }
 
 model ItemPedido {
-  id            String      @id @default(cuid())
-  pedidoId      String
+  id          Int          @id @default(autoincrement())
+  pedidoId      Int
   pedido        Pedido      @relation(fields: [pedidoId], references: [id])
 
-  produtoId     String
+  produtoId     Int
   produto       Produto     @relation(fields: [produtoId], references: [id])
 
   quantidade    Int
