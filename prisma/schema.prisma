@@ -29,7 +29,19 @@ model Usuario {
 
   produtosCadastrados Produto[]
   pedidos     Pedido[]
+  logs        Log[]
   @@map("usuarios")
+}
+
+model Log {
+  id           Int      @id @default(autoincrement())
+  descricao    String   @db.VarChar(60)
+  complemento  String   @db.VarChar(255)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  usuarioId    String
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+  @@map("logs")
 }
 
 enum CategoriaProduto {
