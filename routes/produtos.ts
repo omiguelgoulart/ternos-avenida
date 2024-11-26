@@ -9,11 +9,11 @@ const router = Router();
 
 // Schema de validação para produtos
 const produtoSchema = z.object({
-  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres").max(255, "O nome não pode exceder 255 caracteres"),
-  descricao: z.string().max(255, "A descrição não pode exceder 255 caracteres").optional(),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
+  descricao: z.string().optional(),
   preco: z.number().min(0.01, "O preço deve ser maior que 0"),
   estoque: z.number().int().min(0, "O estoque deve ser maior ou igual a 0"),
-  categoria: z.nativeEnum(CategoriaProduto, { errorMap: () => ({ message: "Categoria inválida" }) }),
+  categoria: z.nativeEnum(CategoriaProduto),
   criadoPorId: z.number({ required_error: "O ID do criador é obrigatório" }),
 });
 

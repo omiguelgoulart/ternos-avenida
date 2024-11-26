@@ -13,17 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Papel {
-  CLIENTE
-  FUNCIONARIO
-}
-
 model Usuario {
   id          Int          @id @default(autoincrement())
   nome        String
   email       String       @unique
   senha       String
-  papel       Papel        @default(CLIENTE)
   criadoEm    DateTime     @default(now())
   atualizadoEm DateTime    @default(now())
   resetToken         String?   // Código de recuperação de senha
