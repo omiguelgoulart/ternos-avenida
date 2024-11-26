@@ -2,12 +2,12 @@ import { PrismaClient } from "@prisma/client"
 import { Router } from "express"
 import bcrypt from 'bcrypt'
 import { z } from 'zod'
-import validaSenha from '../validaSenha'
+import validaSenha from '../utils/validaSenha'
 
 const prisma = new PrismaClient()
 const router = Router()
 
-const usuarioSchema = z.object({
+export const usuarioSchema = z.object({
     nome: z.string().min(3),
     email: z.string().email(),
     senha: z.string().min(6),

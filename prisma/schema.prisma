@@ -26,6 +26,8 @@ model Usuario {
   papel       Papel        @default(CLIENTE)
   criadoEm    DateTime     @default(now())
   atualizadoEm DateTime    @default(now())
+  resetToken         String?   // Código de recuperação de senha
+  resetTokenExpires  DateTime? // Validade do código de recuperação
 
   produtosCadastrados Produto[]
   pedidos     Pedido[]
