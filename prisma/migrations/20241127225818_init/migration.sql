@@ -4,9 +4,14 @@ CREATE TABLE `usuarios` (
     `nome` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `senha` VARCHAR(191) NOT NULL,
-    `papel` ENUM('CLIENTE', 'FUNCIONARIO') NOT NULL DEFAULT 'CLIENTE',
     `criadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `atualizadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `resetToken` VARCHAR(191) NULL,
+    `resetTokenExpires` DATETIME(3) NULL,
+    `ultimoLogin` DATETIME(3) NULL,
+    `bloqueado` BOOLEAN NOT NULL DEFAULT false,
+    `bloqueadoAte` DATETIME(3) NULL,
+    `tentativasLogin` INTEGER NULL DEFAULT 0,
 
     UNIQUE INDEX `usuarios_email_key`(`email`),
     PRIMARY KEY (`id`)
@@ -20,6 +25,7 @@ CREATE TABLE `logs` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `usuarioId` INTEGER NOT NULL,
+    `ultimoLogin` DATETIME(3) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -39,41 +45,8 @@ CREATE TABLE `produtos` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `pedidos` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `usuarioId` INTEGER NOT NULL,
-    `total` DOUBLE NOT NULL,
-    `status` ENUM('PENDENTE', 'PAGO', 'ENVIADO', 'CANCELADO') NOT NULL DEFAULT 'PENDENTE',
-    `criadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `atualizadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `itens_pedido` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `pedidoId` INTEGER NOT NULL,
-    `produtoId` INTEGER NOT NULL,
-    `quantidade` INTEGER NOT NULL,
-    `preco` DOUBLE NOT NULL,
-    `criadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 -- AddForeignKey
 ALTER TABLE `logs` ADD CONSTRAINT `logs_usuarioId_fkey` FOREIGN KEY (`usuarioId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `produtos` ADD CONSTRAINT `produtos_criadoPorId_fkey` FOREIGN KEY (`criadoPorId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `pedidos` ADD CONSTRAINT `pedidos_usuarioId_fkey` FOREIGN KEY (`usuarioId`) REFERENCES `usuarios`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `itens_pedido` ADD CONSTRAINT `itens_pedido_pedidoId_fkey` FOREIGN KEY (`pedidoId`) REFERENCES `pedidos`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `itens_pedido` ADD CONSTRAINT `itens_pedido_produtoId_fkey` FOREIGN KEY (`produtoId`) REFERENCES `produtos`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

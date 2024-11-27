@@ -7,70 +7,117 @@ import { enviaEmail } from "../utils/enviaEmail";
 import { gerarCodigoAleatorio } from "../utils/geraCodigo";
 import { verificaCodigoRecuperacao } from "../middlewares/verificaCodigoRecuperacao";
 import validaSenha from '../utils/validaSenha'
+import { verificaBloqueio } from "../middlewares/verificaBloqueio";
+import { mensagemBoasVindas } from "../utils/menssagem";
 
 
 const prisma = new PrismaClient()
 const router = Router()
 
-router.post("/", async (req, res) => {
-    const { email, senha } = req.body
+async function autenticarUsuario(email: string, senha: string) {
+  const usuario = await prisma.usuario.findFirst({ where: { email } });
+  if (!usuario || !bcrypt.compareSync(senha, usuario.senha)) {
+    return null;
+  }
+  return usuario;
+}
 
-    const mensagemPadrao = "Login ou senha incorretos"
+async function atualizarLoginBemSucedido(usuario: any) {
+  await prisma.usuario.update({
+    where: { email: usuario.email },
+    data: {
+      ultimoLogin: new Date(),
+      tentativasLogin: 0,
+      bloqueadoAte: null,
+    },
+  });
+}
 
-    if (!email || !senha) {
-        res.status(400).json({ erro: mensagemPadrao })
-        return
-    }
+async function tratarTentativaInvalida(usuario: any) {
+  const tentativasInvalidas = (usuario.tentativasLogin ?? 0) + 1;
+  let bloqueadoAte: Date | null = null;
 
-    try {
-        const usuario = await prisma.usuario.findFirst({
-            where: { email }
+  if (tentativasInvalidas >= 3) {
+    bloqueadoAte = new Date();
+    bloqueadoAte.setMinutes(bloqueadoAte.getMinutes() + 60);
+  }
+
+  await prisma.usuario.update({
+    where: { id: usuario.id },
+    data: {
+      tentativasLogin: tentativasInvalidas,
+      bloqueadoAte,
+    },
+  });
+
+  await prisma.log.create({
+    data: {
+      descricao: "Tentativa de Acesso Inválida",
+      complemento: `Email ${usuario.email}`,
+      usuarioId: usuario.id,
+    },
+  });
+
+  return bloqueadoAte;
+}
+
+router.post("/", verificaBloqueio, async (req, res) => {
+  const { email, senha } = req.body;
+  const mensagemPadrao = "Login ou senha incorretos";
+
+  if (!email || !senha) {
+    res.status(400).json({ erro: mensagemPadrao });
+    return;
+  }
+
+  try {
+    const usuario = await autenticarUsuario(email, senha);
+
+    if (usuario) {
+      const boasVindas = mensagemBoasVindas(usuario);
+      await atualizarLoginBemSucedido(usuario);
+
+      const token = jwt.sign(
+        { userLogadoId: usuario.id, userLogadoNome: usuario.nome },
+        process.env.JWT_KEY as string,
+        { expiresIn: "1h" }
+      );
+
+      res.status(200).json({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        mensagem: boasVindas,
+        token,
+      })
+      return;
+    } else {
+      const usuarioExistente = await prisma.usuario.findFirst({ where: { email } });
+
+      if (usuarioExistente) {
+        const bloqueadoAte = await tratarTentativaInvalida(usuarioExistente);
+
+        res.status(400).json({
+          erro: mensagemPadrao,
+          ...(bloqueadoAte && {
+            mensagem: "Usuário bloqueado após múltiplas tentativas inválidas.",
+            tempoRestante: Math.ceil((bloqueadoAte.getTime() - new Date().getTime()) / 60),
+          }),
         })
+        return
+        ;
+      }
 
-        if (!usuario) {
-            res.status(400).json({ erro: mensagemPadrao })
-            return
-        }
-
-        if (bcrypt.compareSync(senha, usuario.senha)) {
-          const ultimoLogin = usuario.ultimoLogin ? usuario.ultimoLogin : "Este é o seu primeiro acesso ao sistema";
-          await prisma.usuario.update({
-            where: { email },
-            data: {
-                ultimoLogin: new Date() 
-            }
-        });
-
-            const token = jwt.sign({
-                userLogadoId: usuario.id,
-                userLogadoNome: usuario.nome
-            },
-                process.env.JWT_KEY as string,
-                { expiresIn: "1h" }
-            )
-            res.status(200).json({
-                id: usuario.id,
-                nome: usuario.nome,
-                email: usuario.email,
-                ultimoLogin: ultimoLogin,
-                token
-            });         
-
-        } else {
-            await prisma.log.create({
-                data: { 
-                    descricao: "Tentativa de Acesso Inválida", 
-                    complemento: `Email ${usuario.email}`,
-                    usuarioId: usuario.id
-                }
-            })
-
-            res.status(400).json({ erro: mensagemPadrao })
-        }
-    } catch (error) {
-        res.status(400).json(error)
+      res.status(400).json({ erro: mensagemPadrao })
+      return;
     }
-})
+  } catch (error) {
+    console.error("Erro ao realizar login:", error);
+    res.status(500).json({ erro: "Erro ao processar login." })
+    return;
+  }
+});
+
 
 // recuperar a senha 
 router.post("/recupera-senha", async (req, res) => {

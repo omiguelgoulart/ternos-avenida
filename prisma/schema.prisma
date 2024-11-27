@@ -20,12 +20,14 @@ model Usuario {
   senha              String
   criadoEm           DateTime     @default(now())
   atualizadoEm       DateTime    @default(now())
-  resetToken         String?   // Código de recuperação de senha
-  resetTokenExpires  DateTime? // Validade do código de recuperação
+  resetToken         String?   
+  resetTokenExpires  DateTime? 
   ultimoLogin        DateTime?
+  bloqueado          Boolean      @default(false)
+  bloqueadoAte       DateTime?
+  tentativasLogin    Int?          @default(0)
 
   produtosCadastrados Produto[]
-  pedidos     Pedido[]
   logs        Log[]
   @@map("usuarios")
 }
@@ -38,8 +40,7 @@ model Log {
   updatedAt    DateTime @default(now())
   usuarioId    Int
   usuario      Usuario  @relation(fields: [usuarioId], references: [id])
-  // dataLogVelho DateTime @db.Date
-  // dataLogNovo  DateTime @db.Date
+  ultimoLogin  DateTime?
 
   @@map("logs")
 }
@@ -63,41 +64,6 @@ model Produto {
   criadoPorId   Int
   criadoPor     Usuario             @relation(fields: [criadoPorId], references: [id])
 
-  itensPedido   ItemPedido[]
   @@map("produtos")
 }
 
-enum StatusPedido {
-  PENDENTE
-  PAGO
-  ENVIADO
-  CANCELADO
-}
-
-model Pedido {
-  id          Int          @id @default(autoincrement())
-  usuarioId     Int
-  usuario       Usuario        @relation(fields: [usuarioId], references: [id])
-  total         Float
-  status        StatusPedido   @default(PENDENTE)
-  criadoEm      DateTime       @default(now())
-  atualizadoEm  DateTime       @default(now())
-
-  itens         ItemPedido[]
-  @@map("pedidos")
-}
-
-model ItemPedido {
-  id          Int          @id @default(autoincrement())
-  pedidoId      Int
-  pedido        Pedido      @relation(fields: [pedidoId], references: [id])
-
-  produtoId     Int
-  produto       Produto     @relation(fields: [produtoId], references: [id])
-
-  quantidade    Int
-  preco         Float
-  criadoEm      DateTime    @default(now())
-
-  @@map("itens_pedido")
-}
