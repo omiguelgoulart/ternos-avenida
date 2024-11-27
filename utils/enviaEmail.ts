@@ -8,8 +8,8 @@ export async function enviaEmail(email: string, nome: string, codigo: string) {
     port: 587,
     secure: false,
     auth: {
-    user: "da9a07c5da776c",
-    pass: "81a5dfae14cc76",
+    user: process.env.USER,
+    pass: process.env.PASS,
   },
   });
 

@@ -8,18 +8,25 @@ export async function verificaCodigoRecuperacao(req: Request, res: Response, nex
   const { email, codigo } = req.body;
 
   try {
+    console.log("Recebendo email:", email);
+    console.log("Recebendo código:", codigo);
+
     const usuario = await prisma.usuario.findUnique({ where: { email } });
+    console.log("Usuário encontrado no banco:", usuario);
 
     if (!usuario || usuario.resetToken !== codigo) {
+      console.log("Código inválido ou usuário não encontrado.");
       res.status(400).json({ error: "Código inválido" });
       return;
     }
 
     if (!usuario.resetTokenExpires || isBefore(new Date(usuario.resetTokenExpires), new Date())) {
+      console.log("Código expirado ou data de expiração inválida.");
       res.status(400).json({ error: "O código expirou" });
       return;
     }
 
+    console.log("Código válido. Continuando...");
     req.body.usuario = usuario;
 
     next();
@@ -28,3 +35,4 @@ export async function verificaCodigoRecuperacao(req: Request, res: Response, nex
     res.status(500).json({ error: "Erro ao verificar código de recuperação" });
   }
 }
+
