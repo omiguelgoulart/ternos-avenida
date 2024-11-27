@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv"
 
+dotenv.config();
 
 export async function enviaEmail(email: string, nome: string, codigo: string) {
   // Configuração do transporte do nodemailer para Gmail
@@ -8,8 +10,8 @@ export async function enviaEmail(email: string, nome: string, codigo: string) {
     port: 587,
     secure: false,
     auth: {
-    user: process.env.USER,
-    pass: process.env.PASS,
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
   });
 
@@ -31,9 +33,9 @@ export async function enviaEmail(email: string, nome: string, codigo: string) {
     // Envia o e-mail
     const info = await transporter.sendMail({
         from: '"Ternos Avenida" <no-reply@beautyavenida.com>',
-      to: email, // E-mail do destinatário
-      subject: "Recuperação de Senha",
-      html: mensagem, // Conteúdo em HTML
+        to: email, // E-mail do destinatário
+        subject: "Recuperação de Senha",
+        html: mensagem, // Conteúdo em HTML
     });
 
     console.log("Mensagem enviada: %s", info.messageId);

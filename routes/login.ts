@@ -7,7 +7,6 @@ import { enviaEmail } from "../utils/enviaEmail";
 import { gerarCodigoAleatorio } from "../utils/geraCodigo";
 import { verificaCodigoRecuperacao } from "../middlewares/verificaCodigoRecuperacao";
 import validaSenha from '../utils/validaSenha'
-import { usuarioSchema } from "./usuarios";
 
 
 const prisma = new PrismaClient()
@@ -41,13 +40,14 @@ router.post("/", async (req, res) => {
                 process.env.JWT_KEY as string,
                 { expiresIn: "1h" }
             )
-
             res.status(200).json({
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
                 token
             })
+
+
         } else {
             await prisma.log.create({
                 data: { 
@@ -102,49 +102,40 @@ router.post("/recupera-senha", async (req, res) => {
 
   router.patch("/recupera-senha", verificaCodigoRecuperacao, async (req, res) => {
     const { novaSenha, usuario } = req.body;
-
+  
     try {
-        console.log("Iniciando processo de redefinição de senha...");
-
-        // Verifica se o usuário foi passado corretamente
-        if (!usuario || !usuario.email) {
-            console.log("Usuário ou e-mail não fornecido.");
-            res.status(400).json({ error: "Usuário ou e-mail inválido." });
-            return;
-        }
-
-        console.log(`Usuário recebido: ${usuario.email}`);
-
-        // Valida a nova senha
-        const erros = validaSenha(novaSenha);
-        if (erros.length > 0) {
-            console.log("Erro na validação da senha:", erros);
-            res.status(400).json({ error: erros.join("; ") });
-            return;
-        }
-
-        console.log("Senha validada com sucesso. Gerando hash...");
-        // Cria o hash da nova senha
-        const salt = await bcrypt.genSalt(12);
-        const senhaHash = await bcrypt.hash(novaSenha, salt);
-
-        console.log("Atualizando senha no banco de dados...");
-        // Atualiza a senha do usuário e invalida o código
-        const usuarioAtualizado = await prisma.usuario.update({
-            where: { email: usuario.email },
-            data: {
-                senha: senhaHash,
-                resetToken: null,
-                resetTokenExpires: null,
-            },
-        });
-
-        console.log("Senha atualizada com sucesso:", usuarioAtualizado.email);
-        res.status(200).json({ message: "Senha redefinida com sucesso!" });
+      console.log("Iniciando processo de redefinição de senha...");
+  
+      // Valida a nova senha
+      const erros = validaSenha(novaSenha);
+      if (erros.length > 0) {
+        console.log("Erro na validação da senha:", erros);
+        res.status(400).json({ error: erros.join("; ") });
+        return;
+      }
+  
+      console.log("Senha validada com sucesso. Gerando hash...");
+      // Cria o hash da nova senha
+      const salt = await bcrypt.genSalt(12);
+      const senhaHash = await bcrypt.hash(novaSenha, salt);
+  
+      console.log("Atualizando senha no banco de dados...");
+      // Atualiza a senha do usuário e invalida o código
+      await prisma.usuario.update({
+        where: { email: usuario.email },
+        data: {
+          senha: senhaHash,
+          resetToken: null,
+          resetTokenExpires: null,
+        },
+      });
+  
+      console.log("Senha atualizada com sucesso.");
+      res.status(200).json({ message: "Senha redefinida com sucesso!" });
     } catch (error) {
-        console.error("Erro ao redefinir senha:", (error as Error).message);
-        res.status(500).json({ error: "Erro ao redefinir senha. Tente novamente mais tarde." });
+      console.error("Erro ao redefinir senha:", (error as Error).message);
+      res.status(500).json({ error: "Erro ao redefinir senha. Tente novamente mais tarde." });
     }
-});
+  });  
 
 export default router

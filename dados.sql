@@ -1,14 +1,14 @@
-INSERT INTO usuarios (nome, email, senha, papel, criadoEm, atualizadoEm) VALUES
-  ('João Silva', 'joao.silva@gmail.com', 'senha123', 'CLIENTE', NOW(), NOW()),
-  ('Maria Oliveira', 'maria.oliveira@gmail.com', 'senha456', 'CLIENTE', NOW(), NOW()),
-  ('Carlos Santos', 'carlos.santos@gmail.com', 'senha789', 'FUNCIONARIO', NOW(), NOW()),
-  ('Ana Pereira', 'ana.pereira@gmail.com', 'senha456', 'CLIENTE', NOW(), NOW()),
-  ('Roberto Costa', 'roberto.costa@gmail.com', 'senha123', 'CLIENTE', NOW(), NOW()),
-  ('Fernanda Lima', 'fernanda.lima@gmail.com', 'senha456', 'FUNCIONARIO', NOW(), NOW()),
-  ('Lucas Carvalho', 'lucas.carvalho@gmail.com', 'senha123', 'CLIENTE', NOW(), NOW()),
-  ('Paula Souza', 'paula.souza@gmail.com', 'senha789', 'FUNCIONARIO', NOW(), NOW()),
-  ('Marcos Almeida', 'marcos.almeida@gmail.com', 'senha456', 'CLIENTE', NOW(), NOW()),
-  ('Julia Castro', 'julia.castro@gmail.com', 'senha123', 'FUNCIONARIO', NOW(), NOW());
+INSERT INTO usuarios (nome, email, senha, criadoEm, atualizadoEm) VALUES
+  ('João Silva', 'joao.silva@gmail.com', 'senha123', NOW(), NOW()),
+  ('Maria Oliveira', 'maria.oliveira@gmail.com', 'senha456', NOW(), NOW()),
+  ('Carlos Santos', 'carlos.santos@gmail.com', 'senha789', NOW(), NOW()),
+  ('Ana Pereira', 'ana.pereira@gmail.com', 'senha456',  NOW(), NOW()),
+  ('Roberto Costa', 'roberto.costa@gmail.com', 'senha123',  NOW(), NOW()),
+  ('Fernanda Lima', 'fernanda.lima@gmail.com', 'senha456', NOW(), NOW()),
+  ('Lucas Carvalho', 'lucas.carvalho@gmail.com', 'senha123', NOW(), NOW()),
+  ('Paula Souza', 'paula.souza@gmail.com', 'senha789', NOW(), NOW()),
+  ('Marcos Almeida', 'marcos.almeida@gmail.com', 'senha456', NOW(), NOW()),
+  ('Julia Castro', 'julia.castro@gmail.com', 'senha123', NOW(), NOW());
 
 
 INSERT INTO produtos (nome, descricao, preco, estoque, categoria, criadoEm, atualizadoEm, criadoPorId) VALUES
