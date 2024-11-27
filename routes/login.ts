@@ -33,6 +33,14 @@ router.post("/", async (req, res) => {
         }
 
         if (bcrypt.compareSync(senha, usuario.senha)) {
+          const ultimoLogin = usuario.ultimoLogin ? usuario.ultimoLogin : "Este é o seu primeiro acesso ao sistema";
+          await prisma.usuario.update({
+            where: { email },
+            data: {
+                ultimoLogin: new Date() 
+            }
+        });
+
             const token = jwt.sign({
                 userLogadoId: usuario.id,
                 userLogadoNome: usuario.nome
@@ -44,9 +52,9 @@ router.post("/", async (req, res) => {
                 id: usuario.id,
                 nome: usuario.nome,
                 email: usuario.email,
+                ultimoLogin: ultimoLogin,
                 token
-            })
-
+            });         
 
         } else {
             await prisma.log.create({
