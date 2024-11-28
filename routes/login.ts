@@ -87,9 +87,10 @@ router.post("/", verificaBloqueio, async (req, res) => {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
+        ultimoLogin: usuario.ultimoLogin, // Inclui o último login anterior
         mensagem: boasVindas,
         token,
-      })
+      });
       return;
     } else {
       const usuarioExistente = await prisma.usuario.findFirst({ where: { email } });
@@ -103,21 +104,19 @@ router.post("/", verificaBloqueio, async (req, res) => {
             mensagem: "Usuário bloqueado após múltiplas tentativas inválidas.",
             tempoRestante: Math.ceil((bloqueadoAte.getTime() - new Date().getTime()) / 60),
           }),
-        })
-        return
-        ;
+        });
+        return;
       }
 
-      res.status(400).json({ erro: mensagemPadrao })
+      res.status(400).json({ erro: mensagemPadrao });
       return;
     }
   } catch (error) {
     console.error("Erro ao realizar login:", error);
-    res.status(500).json({ erro: "Erro ao processar login." })
+    res.status(500).json({ erro: "Erro ao processar login." });
     return;
   }
 });
-
 
 // recuperar a senha 
 router.post("/recupera-senha", async (req, res) => {
