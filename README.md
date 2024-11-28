@@ -115,9 +115,7 @@ O servidor estará rodando em http://localhost:3000.
 - Certifique-se de rodar o projeto em um ambiente seguro com conexões HTTPS em produção.
 
 ## 👥 Contribuidores
-- <a href="https://github.com/omiguelgoulart"><img src="https://github.com/omiguelgoulart.png" width="45" height="45"></a> &nbsp;
-
--<a href="https://github.com/JoaoAANgr"><img src="https://github.com/JoaoAANgr.png" width="45" height="45"></a> &nbsp;
+- <a href="https://github.com/omiguelgoulart"><img src="https://github.com/omiguelgoulart.png" width="45" height="45"></a> &nbsp; <a href="https://github.com/JoaoAANgr"><img src="https://github.com/JoaoAANgr.png" width="45" height="45"></a> &nbsp;
 
 ## 📄 Licença
 Este projeto está licenciado sob a MIT License.
