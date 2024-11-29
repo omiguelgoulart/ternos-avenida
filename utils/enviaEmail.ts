@@ -4,7 +4,6 @@ import dotenv from "dotenv"
 dotenv.config();
 
 export async function enviaEmail(email: string, nome: string, codigo: string) {
-  // Configuração do transporte do nodemailer para Gmail
   const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
     port: 587,
@@ -15,7 +14,7 @@ export async function enviaEmail(email: string, nome: string, codigo: string) {
   },
   });
 
-  // Monta a mensagem do e-mail
+
   const mensagem = `
 <h3 style="color: #4CAF50;">Olá, ${nome}!</h3>
 <p>Recebemos uma solicitação para recuperação da sua senha na nossa plataforma.</p>
@@ -30,12 +29,11 @@ export async function enviaEmail(email: string, nome: string, codigo: string) {
   `;
 
   try {
-    // Envia o e-mail
     const info = await transporter.sendMail({
         from: '"Ternos Avenida" <no-reply@beautyavenida.com>',
-        to: email, // E-mail do destinatário
+        to: email, 
         subject: "Recuperação de Senha",
-        html: mensagem, // Conteúdo em HTML
+        html: mensagem, 
     });
 
     console.log("Mensagem enviada: %s", info.messageId);

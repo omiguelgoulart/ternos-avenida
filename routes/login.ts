@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken"
 import { PrismaClient } from "@prisma/client"
 import { Router } from "express"
@@ -9,7 +8,6 @@ import { verificaCodigoRecuperacao } from "../middlewares/verificaCodigoRecupera
 import validaSenha from '../utils/validaSenha'
 import { verificaBloqueio } from "../middlewares/verificaBloqueio";
 import { mensagemBoasVindas } from "../utils/menssagem";
-
 
 const prisma = new PrismaClient()
 const router = Router()
@@ -87,7 +85,7 @@ router.post("/", verificaBloqueio, async (req, res) => {
         id: usuario.id,
         nome: usuario.nome,
         email: usuario.email,
-        ultimoLogin: usuario.ultimoLogin, // Inclui o último login anterior
+        ultimoLogin: usuario.ultimoLogin, 
         mensagem: boasVindas,
         token,
       });
@@ -118,78 +116,65 @@ router.post("/", verificaBloqueio, async (req, res) => {
   }
 });
 
-// recuperar a senha 
 router.post("/recupera-senha", async (req, res) => {
-    const { email } = req.body;
-  
-    try {
-      const usuario = await prisma.usuario.findUnique({ where: { email } });
-  
-      if (!usuario) {
-        res.status(404).json({ error: "E-mail não encontrado" });
-        return;
-      }
-  
-      const codigo = gerarCodigoAleatorio();
-      const expiraEm = new Date();
-      expiraEm.setMinutes(expiraEm.getMinutes() + 10); // Expira em 10 minutos
-  
-      // Atualizar o código e a validade no banco
-      await prisma.usuario.update({
-        where: { email },
-        data: {
-          resetToken: codigo,
-          resetTokenExpires: expiraEm,
-        },
-      });
-  
-      // Enviar e-mail com o código
-      await enviaEmail(email, usuario.nome, codigo);
+  const { email } = req.body;
 
+  try {
+    const usuario = await prisma.usuario.findUnique({ where: { email } });
 
-      res.status(200).json({ message: "E-mail enviado com sucesso" });
-    } catch (error) {
-      console.error("Erro ao processar solicitação:", error);
-      res.status(500).json({ error: "Erro ao processar solicitação" });
+    if (!usuario) {
+      res.status(404).json({ error: "E-mail não encontrado" });
+      return;
     }
-  });
 
-  router.patch("/recupera-senha", verificaCodigoRecuperacao, async (req, res) => {
-    const { novaSenha, usuario } = req.body;
-  
-    try {
-      console.log("Iniciando processo de redefinição de senha...");
-  
-      // Valida a nova senha
-      const erros = validaSenha(novaSenha);
-      if (erros.length > 0) {
-        console.log("Erro na validação da senha:", erros);
-        res.status(400).json({ error: erros.join("; ") });
-        return;
-      }
-  
-      console.log("Senha validada com sucesso. Gerando hash...");
-      // Cria o hash da nova senha
-      const salt = await bcrypt.genSalt(12);
-      const senhaHash = await bcrypt.hash(novaSenha, salt);
-  
-      console.log("Atualizando senha no banco de dados...");
-      // Atualiza a senha do usuário e invalida o código
-      await prisma.usuario.update({
-        where: { email: usuario.email },
-        data: {
-          senha: senhaHash,
-          resetToken: null,
-          resetTokenExpires: null,
-        },
-      });
-  
-      console.log("Senha atualizada com sucesso.");
-      res.status(200).json({ message: "Senha redefinida com sucesso!" });
-    } catch (error) {
-      console.error("Erro ao redefinir senha:", (error as Error).message);
-      res.status(500).json({ error: "Erro ao redefinir senha. Tente novamente mais tarde." });
+    const codigo = gerarCodigoAleatorio();
+    const expiraEm = new Date();
+    expiraEm.setMinutes(expiraEm.getMinutes() + 10);
+
+    await prisma.usuario.update({
+      where: { email },
+      data: {
+        resetToken: codigo,
+        resetTokenExpires: expiraEm,
+      },
+    });
+
+    await enviaEmail(email, usuario.nome, codigo);
+
+    res.status(200).json({ message: "E-mail enviado com sucesso" });
+  } catch (error) {
+    console.error("Erro ao processar solicitação:", error);
+    res.status(500).json({ error: "Erro ao processar solicitação" });
+  }
+});
+
+router.patch("/recupera-senha", verificaCodigoRecuperacao, async (req, res) => {
+  const { novaSenha, usuario } = req.body;
+
+  try {
+    const erros = validaSenha(novaSenha);
+    if (erros.length > 0) {
+      res.status(400).json({ error: erros.join("; ") });
+      return;
     }
-  });  
+
+    const salt = await bcrypt.genSalt(12);
+    const senhaHash = await bcrypt.hash(novaSenha, salt);
+
+    await prisma.usuario.update({
+      where: { email: usuario.email },
+      data: {
+        senha: senhaHash,
+        resetToken: null,
+        resetTokenExpires: null,
+      },
+    });
+
+    res.status(200).json({ message: "Senha redefinida com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao redefinir senha:", (error as Error).message);
+    res.status(500).json({ error: "Erro ao redefinir senha. Tente novamente mais tarde." });
+  }
+});
 
 export default router

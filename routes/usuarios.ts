@@ -50,6 +50,37 @@ router.post("/", async (req, res) => {
       res.status(400).json(error)
     }
   })
+
   
+router.patch("/:id", async (req, res) => {
+    const id = Number(req.params.id)
+    const valida = usuarioSchema.safeParse(req.body)
+    if (!valida.success) {
+      res.status(400).json({ erro: valida.error })
+      return
+    }
+  
+    try {
+      const usuario = await prisma.usuario.update({
+        where: { id },
+        data: valida.data
+      })
+      res.json(usuario)
+    } catch (error) {
+      res.status(400).json(error)
+    }
+  })
+
+router.delete("/:id", async (req, res) => {
+    const id = Number(req.params.id)
+    try {
+      await prisma.usuario.delete({
+        where: { id }
+      })
+      res.json({ mensagem: "Usuário removido com sucesso" })
+    } catch (error) {
+      res.status(400).json(error)
+    }
+  })  
 
 export default router

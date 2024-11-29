@@ -23,6 +23,30 @@ INSERT INTO produtos (nome, descricao, preco, estoque, categoria, criadoEm, atua
   ('Terno Slim Preto', 'Terno slim preto para eventos formais', 850.00, 6, 'FORMAL', NOW(), NOW(), 9),
   ('Cinto de Couro', 'Cinto de couro legítimo', 70.00, 18, 'FORMAL', NOW(), NOW(), 9);
 
+  INSERT INTO produtos (nome, descricao, preco, estoque, categoria, criadoEm, atualizadoEm, criadoPorId)
+VALUES
+('Terno Clássico', 'Terno formal de alta qualidade', 1500.50, 10, 'FORMAL', NOW(), NOW(), 1),
+('Camisa Social', 'Camisa formal branca', 200.00, 50, 'FORMAL', NOW(), NOW(), 2),
+('Gravata Slim', 'Gravata preta elegante', 120.00, 30, 'FORMAL', NOW(), NOW(), 1),
+('Terno Slim Fit', 'Terno casual ajustado', 1700.00, 5, 'CASUAL', NOW(), NOW(), 3),
+('Calça Social', 'Calça para eventos formais', 300.00, 20, 'FORMAL', NOW(), NOW(), 2),
+('Blazer Moderno', 'Blazer casual e moderno', 900.00, 8, 'CASUAL', NOW(), NOW(), 3),
+('Vestido de Noiva', 'Vestido para casamento sofisticado', 5000.00, 3, 'CASAMENTO', NOW(), NOW(), 1),
+('Camisa Casual', 'Camisa casual para ocasiões descontraídas', 150.00, 25, 'CASUAL', NOW(), NOW(), 2),
+('Sapato Social', 'Sapato masculino clássico', 600.00, 15, 'FORMAL', NOW(), NOW(), 3),
+('Cinto de Couro', 'Cinto de couro preto', 180.00, 40, 'FORMAL', NOW(), NOW(), 1),
+('Vestido Longo', 'Vestido para casamento ao ar livre', 3500.00, 2, 'CASAMENTO', NOW(), NOW(), 3),
+('Smoking Clássico', 'Smoking preto com acabamento fino', 2500.00, 4, 'FORMAL', NOW(), NOW(), 1),
+('Terno Casual', 'Terno leve e descontraído', 1400.00, 7, 'CASUAL', NOW(), NOW(), 2),
+('Gravata Borboleta', 'Gravata borboleta estilosa', 80.00, 25, 'FORMAL', NOW(), NOW(), 1),
+('Sapato Casual', 'Sapato confortável para o dia a dia', 300.00, 20, 'CASUAL', NOW(), NOW(), 2),
+('Abotoaduras Elegantes', 'Par de abotoaduras de prata', 250.00, 10, 'FORMAL', NOW(), NOW(), 3),
+('Vestido Curto', 'Vestido casual para eventos informais', 1200.00, 6, 'CASUAL', NOW(), NOW(), 2),
+('Sapato de Casamento', 'Sapato elegante para noivas', 800.00, 3, 'CASAMENTO', NOW(), NOW(), 3),
+('Terno Clássico Azul', 'Terno azul-marinho para eventos formais', 1600.00, 5, 'FORMAL', NOW(), NOW(), 1),
+('Jaqueta Casual', 'Jaqueta estilosa para eventos casuais', 700.00, 10, 'CASUAL', NOW(), NOW(), 3);
+
+
 
 INSERT INTO pedidos (usuarioId, total, status, criadoEm, atualizadoEm) VALUES
   (1, 0, 'PENDENTE', NOW(), NOW()),

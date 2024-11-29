@@ -1,4 +1,3 @@
-// routes/produtos.ts
 import { Router } from "express";
 import { CategoriaProduto, PrismaClient } from "@prisma/client";
 import { z } from "zod";
@@ -7,7 +6,6 @@ import { verificaToken } from "../middlewares/verificaToken";
 const prisma = new PrismaClient();
 const router = Router();
 
-// Schema de validação para produtos
 const produtoSchema = z.object({
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
   descricao: z.string().optional(),
@@ -17,7 +15,6 @@ const produtoSchema = z.object({
   criadoPorId: z.number({ required_error: "O ID do criador é obrigatório" }),
 });
 
-// Endpoint para listar todos os produtos
 router.get("/", async (req, res) => {
   try {
     const produtos = await prisma.produto.findMany();
@@ -28,7 +25,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Endpoint para criar um produto
 router.post("/", verificaToken, async (req, res) => {
   const validaProduto = produtoSchema.safeParse(req.body);
 
@@ -52,7 +48,6 @@ router.post("/", verificaToken, async (req, res) => {
   }
 });
 
-// Endpoint para deletar um produto
 router.delete("/:id", verificaToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
@@ -72,7 +67,6 @@ router.delete("/:id", verificaToken, async (req, res) => {
   }
 });
 
-// Endpoint para atualizar um produto
 router.put("/:id", verificaToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
 

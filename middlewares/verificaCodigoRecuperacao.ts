@@ -13,24 +13,24 @@ export async function verificaCodigoRecuperacao(req: Request, res: Response, nex
     return;
   }
 
-  const codigo = authorization.split(" ")[1]; // Extrai o código do header Authorization
+  const codigo = authorization.split(" ")[1];
 
   try {
     console.log("Recebendo email:", email);
     console.log("Recebendo código do header:", codigo);
 
-    // Verifica se o email foi fornecido
+
     if (!email) {
       console.log("Email não fornecido.");
       res.status(400).json({ error: "Email é obrigatório" });
       return;
     }
 
-    // Busca o usuário pelo email
+
     const usuario = await prisma.usuario.findUnique({ where: { email } });
     console.log("Usuário encontrado no banco:", usuario);
 
-    // Verifica se o usuário existe e se o código corresponde
+
     if (!usuario) {
       console.log("Usuário não encontrado.");
       res.status(404).json({ error: "Usuário não encontrado" });
@@ -43,7 +43,6 @@ export async function verificaCodigoRecuperacao(req: Request, res: Response, nex
       return;
     }
 
-    // Verifica se o código expirou
     if (!usuario.resetTokenExpires || isBefore(new Date(usuario.resetTokenExpires), new Date())) {
       console.log("Código expirado ou data de expiração inválida.");
       res.status(400).json({ error: "O código expirou" });
@@ -51,7 +50,6 @@ export async function verificaCodigoRecuperacao(req: Request, res: Response, nex
     }
 
     console.log("Código válido. Continuando...");
-    // Adiciona o usuário ao req.body para ser usado na próxima etapa
     req.body.usuario = usuario;
 
     next();
