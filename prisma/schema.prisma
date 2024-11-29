@@ -40,7 +40,6 @@ model Log {
   updatedAt    DateTime @default(now())
   usuarioId    Int
   usuario      Usuario  @relation(fields: [usuarioId], references: [id])
-  ultimoLogin  DateTime?
 
   @@map("logs")
 }
