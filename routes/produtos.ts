@@ -57,15 +57,26 @@ router.delete("/:id", verificaToken, async (req, res) => {
   }
 
   try {
+    const produto = await prisma.produto.findUnique({
+      where: { id },
+    });
+
+    if (!produto) {
+      res.status(404).json({ error: "Produto não encontrado" });
+      return;
+    }
+
     await prisma.produto.delete({
       where: { id },
     });
-    res.status(204).send();
-  } catch (error: any) {
-    console.error("Erro ao deletar produto:", error.message);
-    res.status(400).json({ error: "Erro ao deletar produto" });
+
+    res.status(200).json({ message: "Produto excluído com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao excluir o produto:", error);
+    res.status(500).json({ error: "Erro interno ao tentar excluir o produto" });
   }
 });
+
 
 router.put("/:id", verificaToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
@@ -88,6 +99,36 @@ router.put("/:id", verificaToken, async (req, res) => {
       data: {
         ...validaProduto.data,
         descricao: validaProduto.data.descricao ?? "",
+      },
+    });
+    res.json(produto);
+  } catch (error: any) {
+    console.error("Erro ao atualizar produto:", error.message);
+    res.status(400).json({ error: "Erro ao atualizar produto" });
+  }
+});
+router.patch("/:id", verificaToken, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    res.status(400).json({ error: "ID inválido" });
+    return;
+  }
+
+  const validaProduto = produtoSchema.pick({ preco: true, estoque: true }).safeParse(req.body);
+
+  if (!validaProduto.success) {
+    res.status(400).json({ erro: validaProduto.error.errors });
+    return;
+  }
+
+  try {
+    const produto = await prisma.produto.update({
+      where: { id },
+      data: {
+        preco: validaProduto.data.preco,
+        estoque: validaProduto.data.estoque,
+        atualizadoEm: new Date(),
       },
     });
     res.json(produto);

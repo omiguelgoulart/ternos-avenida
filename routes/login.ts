@@ -149,20 +149,28 @@ router.post("/recupera-senha", async (req, res) => {
 });
 
 router.patch("/recupera-senha", verificaCodigoRecuperacao, async (req, res) => {
-  const { novaSenha, usuario } = req.body;
+  const { email, senha } = req.body;
 
   try {
-    const erros = validaSenha(novaSenha);
+    if (!email || !senha) {
+      res.status(400).json({ error: "E-mail e nova senha são obrigatórios" });
+      return;
+    }
+
+    // Valida a nova senha
+    const erros = validaSenha(senha);
     if (erros.length > 0) {
       res.status(400).json({ error: erros.join("; ") });
       return;
     }
 
-    const salt = await bcrypt.genSalt(12);
-    const senhaHash = await bcrypt.hash(novaSenha, salt);
 
+    const salt = await bcrypt.genSalt(12);
+    const senhaHash = await bcrypt.hash(senha, salt);
+
+   
     await prisma.usuario.update({
-      where: { email: usuario.email },
+      where: { email },
       data: {
         senha: senhaHash,
         resetToken: null,
@@ -172,9 +180,11 @@ router.patch("/recupera-senha", verificaCodigoRecuperacao, async (req, res) => {
 
     res.status(200).json({ message: "Senha redefinida com sucesso!" });
   } catch (error) {
-    console.error("Erro ao redefinir senha:", (error as Error).message);
+    console.error("Erro ao redefinir senha:", error);
     res.status(500).json({ error: "Erro ao redefinir senha. Tente novamente mais tarde." });
   }
 });
+
+
 
 export default router
